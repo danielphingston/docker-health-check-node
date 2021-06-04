@@ -1,0 +1,23 @@
+version: "3.3"
+services:
+    couchbase:
+        image: couchbase
+        container_name: couchbase
+        volumes:
+            - ~/couchbase-data:/opt/couchbase/var
+        restart: unless-stopped
+    node-api:
+        build: .
+        container_name: node-api
+        ports:
+            - 3000:3000
+        restart: unless-stopped
+        depends_on:
+            - couchbase
+        entrypoint: 
+            [
+                "./wait-for-it.sh", #set the script as the entry point
+                "http://couchbase:8091/pools/default", # url to use to decide if host is up
+                "npm", #command to execute after host is up
+                "start",
+            ]
